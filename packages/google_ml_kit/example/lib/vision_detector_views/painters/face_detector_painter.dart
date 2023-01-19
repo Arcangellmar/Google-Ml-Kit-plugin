@@ -31,6 +31,21 @@ class FaceDetectorPainter extends CustomPainter {
         paint,
       );
 
+      if (face.contours[FaceContourType.noseBridge] != null) {
+
+        Offset p1 = Offset(
+            translateX(face.contours[FaceContourType.noseBridge]!.points.first.x.toDouble(), rotation, size, absoluteImageSize),
+            translateY(face.contours[FaceContourType.noseBridge]!.points.first.y.toDouble(), rotation, size, absoluteImageSize)
+        );
+
+        Offset p2 = Offset(
+            translateX(face.contours[FaceContourType.noseBridge]!.points.last.x.toDouble(), rotation, size, absoluteImageSize),
+            translateY(face.contours[FaceContourType.noseBridge]!.points.last.y.toDouble(), rotation, size, absoluteImageSize)
+        );
+        canvas.drawLine(p1, p2, paint);
+
+      }
+
       void paintContour(FaceContourType type) {
         final faceContour = face.contours[type];
         if (faceContour?.points != null) {

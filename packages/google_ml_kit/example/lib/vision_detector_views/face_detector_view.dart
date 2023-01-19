@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+// import 'package:opencv_4/opencv_4.dart';
 
 import 'camera_view.dart';
 import 'painters/face_detector_painter.dart';
@@ -36,15 +37,15 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
       customPaint: _customPaint,
       text: _text,
       onImage: (inputImage) {
-        processImage(inputImage);
+        return processImage(inputImage);
       },
       initialDirection: CameraLensDirection.front,
     );
   }
 
-  Future<void> processImage(InputImage inputImage) async {
-    if (!_canProcess) return;
-    if (_isBusy) return;
+  Future<bool> processImage(InputImage inputImage) async {
+    if (!_canProcess) return false;
+    if (_isBusy) return false;
     _isBusy = true;
     setState(() {
       _text = '';
@@ -66,9 +67,17 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
       // TODO: set _customPaint to draw boundingRect on top of image
       _customPaint = null;
     }
+
+    bool success = false;
+    if (faces.isNotEmpty) {
+      return true;
+    }
+
     _isBusy = false;
     if (mounted) {
       setState(() {});
     }
+
+    return success;
   }
 }

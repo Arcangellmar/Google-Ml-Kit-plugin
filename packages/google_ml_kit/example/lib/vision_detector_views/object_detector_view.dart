@@ -43,7 +43,7 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
       customPaint: _customPaint,
       text: _text,
       onImage: (inputImage) {
-        processImage(inputImage);
+        return processImage(inputImage);
       },
       onScreenModeChanged: _onScreenModeChanged,
       initialDirection: CameraLensDirection.back,
@@ -101,9 +101,9 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
     _canProcess = true;
   }
 
-  Future<void> processImage(InputImage inputImage) async {
-    if (!_canProcess) return;
-    if (_isBusy) return;
+  Future<bool> processImage(InputImage inputImage) async {
+    if (!_canProcess) return false;
+    if (_isBusy) return false;
     _isBusy = true;
     setState(() {
       _text = '';
@@ -126,10 +126,23 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
       // TODO: set _customPaint to draw boundingRect on top of image
       _customPaint = null;
     }
+
+    bool success = false;
+    for (final object in objects) {
+      for (final label in object.labels) {
+        if (label.text == "Driver's license" && label.confidence > 0.60) {
+          _isBusy = false;
+          return true;
+
+        }
+      }
+    }
+
     _isBusy = false;
     if (mounted) {
       setState(() {});
     }
+    return success;
   }
 
   Future<String> _getModel(String assetPath) async {

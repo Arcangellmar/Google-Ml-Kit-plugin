@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_ml_kit_example/extra/photo_view.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -283,7 +284,12 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Future _stopLiveFeed() async {
-    await _controller?.stopImageStream();
+    try {
+      await _controller?.stopImageStream();
+    }
+    catch (_) {
+
+    }
     await _controller?.dispose();
     _controller = null;
   }
@@ -349,6 +355,21 @@ class _CameraViewState extends State<CameraView> {
     final inputImage =
         InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
 
-    widget.onImage(inputImage);
+    bool succes = await widget.onImage(inputImage) ?? false;
+
+    if (succes) {
+      await _controller?.stopImageStream();
+      try{
+        final file = await _controller?.takePicture();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => PhotoView(file: file)),
+        );
+      }
+      catch (_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => PhotoView(file: null)),
+        );
+      }
+    }
   }
 }
